@@ -1419,6 +1419,15 @@ static void generate_copyfrom(struct generator * g) {
     w(g, "~-~M}~N");
 }
 
+static void generate_sbclass(struct generator * g) {
+
+    w(g,  "~Mprotected function sbClass() {~+~N~N"
+          "~Mreturn \"");
+    w(g,  g->options->string_class);
+    w(g,  "\";~-~N"
+          "~M}~N~N");
+}
+
 static void generate_methods(struct generator * g) {
 
     struct node * p;
@@ -1445,6 +1454,7 @@ extern void generate_program_php(struct generator * g) {
     generate_copyfrom(g);
     generate_methods(g);
     generate_equals(g);
+    generate_sbclass(g);
 
     generate_class_end(g);
 

@@ -2,7 +2,7 @@
 
 namespace SnowballPHP;
 
-class SnowballProgram {
+abstract class SnowballProgram {
 
     // current string
     /** @var StringBuffer */
@@ -19,7 +19,8 @@ class SnowballProgram {
     protected $ket;
 
     function __construct() {
-        $this->current = new StringBuffer();
+        $cname = $this->sbClass();
+        $this->current = new $cname();
         $this->setCurrent("");
     }
 
@@ -48,7 +49,8 @@ class SnowballProgram {
         // the buffer size will not decrease, and we will risk wasting a large
         // amount of memory.
         // Thanks to Wolfram Esser for spotting this problem.
-        $this->current = new StringBuffer();
+        $cname = $this->sbClass();
+        $this->current = new $cname();
         return $result;
     }
 
@@ -144,7 +146,8 @@ class SnowballProgram {
      */
     protected function eq_s($s) {
         if (!($s instanceof CharSequence)) {
-            $s = new StringBuffer($s);
+            $cname = $this->sbClass();
+            $s = new $cname($s);
         }
         if ($this->limit - $this->cursor < $s->length()) return false;
 	    for ($i = 0; $i != $s->length(); $i += 1) {
@@ -160,7 +163,8 @@ class SnowballProgram {
      */
     protected function eq_s_b($s) {
         if (!($s instanceof CharSequence)) {
-            $s = new StringBuffer($s);
+            $cname = $this->sbClass();
+            $s = new $cname($s);
         }
         if ($this->cursor - $this->limit_backward < $s->length()) return false;
 	    for ($i = 0; $i != $s->length(); $i += 1) {
@@ -319,7 +323,8 @@ class SnowballProgram {
      */
     protected function replace_s($c_bra, $c_ket, $s) {
         if (!($s instanceof CharSequence)) {
-            $s = new StringBuffer($s);
+            $cname = $this->sbClass();
+            $s = new $cname($s);
         }
         $adjustment = $s->length() - ($c_ket - $c_bra);
 	    $this->current->replace($c_bra, $c_ket, $s);
@@ -355,7 +360,8 @@ class SnowballProgram {
      */
     protected function slice_from($s) {
         if (!($s instanceof CharSequence)) {
-            $s = new StringBuffer($s);
+            $cname = $this->sbClass();
+            $s = new $cname($s);
         }
         $this->slice_check();
         $this->replace_s($this->bra, $this->ket, $s);
@@ -376,7 +382,8 @@ class SnowballProgram {
      */
     protected function insert($c_bra, $c_ket, $s) {
         if (!($s instanceof CharSequence)) {
-            $s = new StringBuffer($s);
+            $cname = $this->sbClass();
+            $s = new $cname($s);
         }
         $adjustment = $this->replace_s($c_bra, $c_ket, $s);
 	    if ($c_bra <= $this->bra) $this->bra += $adjustment;
@@ -404,4 +411,5 @@ class SnowballProgram {
         return $s;
     }
 
+    protected abstract function sbClass();
 }

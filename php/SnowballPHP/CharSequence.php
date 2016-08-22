@@ -10,6 +10,12 @@ interface CharSequence {
     function charAt($index);
 
     /**
+     * @param int $index
+     * @return int
+     */
+    function intAt($index);
+
+    /**
      * @return int
      */
     function length();

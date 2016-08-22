@@ -10,8 +10,9 @@
 
 #define DEFAULT_PHP_PACKAGE "SnowballPHP\\Stemmers"
 #define DEFAULT_PHP_BASE_CLASS "\\SnowballPHP\\SnowballStemmer"
-#define DEFAULT_PHP_AMONG_CLASS "SnowballPHP\\Among";
-#define DEFAULT_PHP_STRING_CLASS "\\SnowballPHP\\StringBuilder";
+#define DEFAULT_PHP_AMONG_CLASS "SnowballPHP\\Among"
+#define DEFAULT_PHP_STRING_CLASS "\\\\SnowballPHP\\\\StringBuffer"
+#define DEFAUlT_PHP_UTF8_STRING_CLASS "\\\\SnowballPHP\\\\StringBufferUtf8"
 
 static int eq(const char * s1, const char * s2) {
     return strcmp(s1, s2) == 0;
@@ -133,7 +134,6 @@ static void read_options(struct options * o, int argc, char * argv[]) {
 #ifndef DISABLE_PHP
             if (eq(s, "-php")) {
                 o->make_lang = LANG_PHP;
-                o->widechars = true;
                 o->parent_class_name = DEFAULT_PHP_BASE_CLASS;
                 o->string_class = DEFAULT_PHP_STRING_CLASS;
                 o->among_class = DEFAULT_PHP_AMONG_CLASS;
@@ -260,6 +260,13 @@ extern int main(int argc, char * argv[]) {
                     print_arglist();
                     exit(1);
                 }
+#ifndef DISABLE_PHP
+                if (o->make_lang == LANG_PHP) {
+                    if (o->utf8) {
+                        o->string_class = DEFAUlT_PHP_UTF8_STRING_CLASS;
+                    }
+                }
+#endif
                 g = create_generator(a, o);
                 if (o->make_lang == LANG_C || o->make_lang == LANG_CPLUSPLUS) {
                     symbol * b = add_s_to_b(0, s);
@@ -288,6 +295,9 @@ extern int main(int argc, char * argv[]) {
 #endif
 #ifndef DISABLE_PHP
                 if (o->make_lang == LANG_PHP) {
+                    if (o->utf8) {
+                        o->string_class = DEFAUlT_PHP_UTF8_STRING_CLASS;
+                    }
                     symbol * b = add_s_to_b(0, s);
                     b = add_s_to_b(b, ".php");
                     o->output_src = get_output(b);
