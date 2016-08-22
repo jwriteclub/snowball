@@ -292,6 +292,10 @@ struct generator {
     struct name * V[5];  /* variables */
     symbol * L[5];       /* literals, used in formatted write */
 
+#ifndef DISABLE_PHP
+    int writing_class_vars;
+#endif
+
     int line_count;      /* counts number of lines output */
     int line_labelled;   /* in ISO C, will need extra ';' if it is a block end */
     int literalstring_count;
@@ -309,7 +313,7 @@ struct options {
     FILE * output_h;
     byte syntax_tree;
     byte widechars;
-    enum { LANG_JAVA, LANG_C, LANG_CPLUSPLUS, LANG_PYTHON, LANG_JSX } make_lang;
+    enum { LANG_JAVA, LANG_C, LANG_CPLUSPLUS, LANG_PYTHON, LANG_JSX, LANG_PHP } make_lang;
     const char * externals_prefix;
     const char * variables_prefix;
     const char * runtime_path;
@@ -349,4 +353,8 @@ extern void generate_program_python(struct generator * g);
 
 #ifndef DISABLE_JSX
 extern void generate_program_jsx(struct generator * g);
+#endif
+
+#ifndef DISABLE_PHP
+extern void generate_program_php(struct generator * g);
 #endif

@@ -8,6 +8,11 @@
 #define DEFAULT_AMONG_CLASS "org.tartarus.snowball.Among"
 #define DEFAULT_STRING_CLASS "java.lang.StringBuilder"
 
+#define DEFAULT_PHP_PACKAGE "SnowballPHP\\Stemmers"
+#define DEFAULT_PHP_BASE_CLASS "\\SnowballPHP\\SnowballStemmer"
+#define DEFAULT_PHP_AMONG_CLASS "SnowballPHP\\Among";
+#define DEFAULT_PHP_STRING_CLASS "\\SnowballPHP\\StringBuilder";
+
 static int eq(const char * s1, const char * s2) {
     return strcmp(s1, s2) == 0;
 }
@@ -25,6 +30,9 @@ static void print_arglist(void) {
 #endif
 #ifndef DISABLE_JSX
                     "             [-jsx]\n"
+#endif
+#ifndef DISABLE_PHP
+                    "             [-php]\n"
 #endif
                     "             [-w[idechars]]\n"
                     "             [-u[tf8]]\n"
@@ -119,6 +127,22 @@ static void read_options(struct options * o, int argc, char * argv[]) {
             if (eq(s, "-py") || eq(s, "-python")) {
                 o->make_lang = LANG_PYTHON;
                 o->widechars = true;
+                continue;
+            }
+#endif
+#ifndef DISABLE_PHP
+            if (eq(s, "-php")) {
+                o->make_lang = LANG_PHP;
+                o->widechars = true;
+                o->parent_class_name = DEFAULT_PHP_BASE_CLASS;
+                o->string_class = DEFAULT_PHP_STRING_CLASS;
+                o->among_class = DEFAULT_PHP_AMONG_CLASS;
+                o->package = DEFAULT_PHP_PACKAGE;
+                continue;
+            }
+            if (eq(s, "-P") || eq(s, "-Package")) {
+                check_lim(i, argc);
+                o->package = argv[i++];
                 continue;
             }
 #endif
@@ -262,6 +286,16 @@ extern int main(int argc, char * argv[]) {
                     fclose(o->output_src);
                 }
 #endif
+#ifndef DISABLE_PHP
+                if (o->make_lang == LANG_PHP) {
+                    symbol * b = add_s_to_b(0, s);
+                    b = add_s_to_b(b, ".php");
+                    o->output_src = get_output(b);
+                    lose_b(b);
+                    generate_program_php(g);
+                    fclose(o->output_src);
+                }
+#endif
 #ifndef DISABLE_PYTHON
                 if (o->make_lang == LANG_PYTHON) {
                     symbol * b = add_s_to_b(0, s);
@@ -299,4 +333,3 @@ extern int main(int argc, char * argv[]) {
     if (space_count) fprintf(stderr, "%d blocks unfreed\n", space_count);
     return 0;
 }
-
