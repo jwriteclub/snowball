@@ -676,10 +676,10 @@ static void generate_loop(struct generator * g, struct node * p) {
     write_comment(g, p);
     g->B[0] = str_data(loopvar);
     //write_declare(g, "int ~B0", p);
-    w(g, "~Mfor ($~B0 = ");
+    w(g, "~Mfor (~B0 = ");
     generate_AE(g, p->AE);
     g->B[0] = str_data(loopvar);
-    writef(g, "; $~B0 > 0; $~B0 -= 1)~N", p);
+    writef(g, "; ~B0 > 0; ~B0 -= 1)~N", p);
     writef(g, "~{", p);
 
     generate(g, p->left);
@@ -733,7 +733,7 @@ static void generate_atleast(struct generator * g, struct node * p) {
     write_comment(g, p);
     w(g, "~{");
     g->B[0] = str_data(loopvar);
-    w(g, "~M$~B0 = ");
+    w(g, "~M~B0 = ");
     generate_AE(g, p->AE);
     w(g, ";~N");
     {
@@ -747,7 +747,7 @@ static void generate_atleast(struct generator * g, struct node * p) {
         g->failure_str = a1;
     }
     g->B[0] = str_data(loopvar);
-    write_failure_if(g, "$~B0 > 0", p);
+    write_failure_if(g, "~B0 > 0", p);
     w(g, "~}");
     str_delete(loopvar);
 }
@@ -915,10 +915,10 @@ static void generate_setlimit(struct generator * g, struct node * p) {
         g->B[0] = str_data(varname);
         //write_declare(g, "int ~B0", p);
         if (p->mode == m_forward) {
-            w(g, "~M$~B0 = $this->limit - $this->cursor;~N");
+            w(g, "~M~B0 = $this->limit - $this->cursor;~N");
             w(g, "~M$this->limit = $this->cursor;~N");
         } else {
-            w(g, "~M$~B0 = $this->limit_backward;~N");
+            w(g, "~M~B0 = $this->limit_backward;~N");
             w(g, "~M$this->limit_backward = $this->cursor;~N");
         }
         write_restorecursor(g, p, savevar);
