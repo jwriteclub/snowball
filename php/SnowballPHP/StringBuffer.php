@@ -170,7 +170,7 @@ class StringBuffer implements CharSequence {
 
     protected function decodeUtf8Char($input, &$pos = 0) {
         $len = strlen($input);
-        if ($pos == $len) {
+        if ($pos + 1 > $len) {
             //echo "End of stream".PHP_EOL;
             return 0;
         }
@@ -180,7 +180,7 @@ class StringBuffer implements CharSequence {
             //echo "1 byte ASCI Code point ".chr($first)." ".$first.PHP_EOL;
             return $first;
         }
-        if ($pos + 1 == $len) {
+        if ($pos + 1 > $len) {
             //echo "2 byte UTF8 invalid (insufficient additional characters)".PHP_EOL;
             return 0;
         }
@@ -199,7 +199,7 @@ class StringBuffer implements CharSequence {
             //echo "2 byte UTF8 code point ".chr($first).chr($second)." ".$ret.PHP_EOL;
             return $ret;
         }
-        if ($pos + 2 == $len) {
+        if ($pos + 2 > $len) {
             //echo "3 byte UTF8 invalid (insufficient additional characters)".PHP_EOL;
             return 0;
         }
@@ -224,7 +224,7 @@ class StringBuffer implements CharSequence {
             //echo "3 byte UTF8 code point ".chr($first).chr($second).chr($third)." ".$ret.PHP_EOL;
             return $ret;
         }
-        if ($pos + 3 == $len) {
+        if ($pos + 3 > $len) {
             //echo "4 byte UTF8 invalid (insufficient additional characters)".PHP_EOL;
             return 0;
         }
