@@ -15,7 +15,7 @@ class StringBuffer implements CharSequence {
         if ($arg == null) {
             $len = 0; // Make a 64 character buffer, if we don't have anything specified
         } else if (is_string($arg)) {
-            $len = strlen($arg);
+            $len = 0; // In this case, we'll set it up when we insert
         } else if (is_int($arg)) {
             $len = 0; // In this case, don't do anything
         } else {
