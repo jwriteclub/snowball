@@ -64,10 +64,10 @@ static void write_hexdigit(struct generator * g, int n) {
 
 static void write_hex(struct generator * g, int ch) {
 
-    write_string(g, "0x");
+    write_string(g, "\\x");
     {
         int i;
-        for (i = 12; i >= 0; i -= 4) write_hexdigit(g, ch >> i & 0xf);
+        for (i = 4; i >= 0; i -= 4) write_hexdigit(g, ch >> i & 0xf);
     }
 }
 
