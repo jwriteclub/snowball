@@ -17,6 +17,11 @@ jsx_runtime_src_dir = jsx
 jsx_runtime_dir = lib
 jsx_sample_dir = sample
 
+php ?= php
+php_output_dir = php_out
+php_runtime_dir = SnowballPHP
+php_sample_dir = example
+
 ICONV = iconv
 #ICONV = python ./iconv.py
 
@@ -76,6 +81,13 @@ PYTHON_SAMPLE_SOURCES = python/testapp.py \
 PYTHON_PACKAGE_FILES = python/MANIFEST.in \
 		       python/setup.py
 
+PHP_RUNTIME_SOURCES = php/SnowballPHP/Among.php \
+						php/SnowballPHP/CharSequence.php \
+						php/SnowballPHP/SnowballProgram.php \
+						php/SnowballPHP/SnowballStemmer.php \
+						php/SnowballPHP/StringBuffer.php \
+						php/SnowballPHP/StringBufferUtf8.php
+
 LIBSTEMMER_SOURCES = libstemmer/libstemmer.c
 LIBSTEMMER_UTF8_SOURCES = libstemmer/libstemmer_utf8.c
 LIBSTEMMER_HEADERS = include/libstemmer.h libstemmer/modules.h libstemmer/modules_utf8.h
@@ -86,6 +98,8 @@ STEMWORDS_SOURCES = examples/stemwords.c
 JSX_STEMWORDS_SOURCE = jsx/stemwords.jsx
 
 PYTHON_STEMWORDS_SOURCE = python/stemwords.py
+
+PHP_STEMWORDS_SOURCE = php/stemwords.php
 
 ALL_ALGORITHM_FILES = $(all_algorithms:%=algorithms/%/stem*.sbl)
 C_LIB_SOURCES = $(libstemmer_algorithms:%=$(c_src_dir)/stem_UTF_8_%.c) \
@@ -102,6 +116,10 @@ JAVA_SOURCES = $(libstemmer_algorithms:%=$(java_src_dir)/%Stemmer.java)
 PYTHON_SOURCES = $(libstemmer_algorithms:%=$(python_output_dir)/%_stemmer.py) \
 		 $(python_output_dir)/__init__.py
 JSX_SOURCES = $(libstemmer_algorithms:%=$(jsx_output_dir)/%-stemmer.jsx)
+PHP_SOURCES = $(libstemmer_algorithms:%=$(php_output_dir)/SnowballPHP/Stemmer/%.php) \
+		$(KOI8_R_algorithms:%=$(php_output_dir)/SnowballPHP/Stemmer/%_koi8r.php) \
+		$(ISO_8859_1_algorithms:%=$(php_output_dir)/SnowballPHP/Stemmer/%_iso-8859-1.php) \
+		$(ISO_8859_2_algorithms%=$(php_output_dir)/SnowballPHP/Stemmer/%_iso-8859-2.php)
 
 COMPILER_OBJECTS=$(COMPILER_SOURCES:.c=.o)
 RUNTIME_OBJECTS=$(RUNTIME_SOURCES:.c=.o)
@@ -129,12 +147,14 @@ clean:
 	      $(C_OTHER_SOURCES) $(C_OTHER_HEADERS) $(C_OTHER_OBJECTS) \
 	      $(JAVA_SOURCES) $(JAVA_CLASSES) $(JAVA_RUNTIME_CLASSES) \
 	      $(PYTHON_SOURCES) \
+				$(PHP_SOURCES) \
 	      $(JSX_SOURCES) jsx_stemwords \
               libstemmer/mkinc.mak libstemmer/mkinc_utf8.mak \
               libstemmer/libstemmer.c libstemmer/libstemmer_utf8.c
 	rm -rf dist
 	rmdir $(c_src_dir) || true
 	rmdir $(python_output_dir) || true
+	rmdir $(php_output_dir) || true
 	rmdir $(jsx_output_dir) || true
 
 snowball: $(COMPILER_OBJECTS)
@@ -213,6 +233,34 @@ $(python_output_dir)/%_stemmer.py: algorithms/%/stem_Unicode.sbl snowball
 	echo "./snowball $< -py -o $${o} -p \"SnowballStemmer\" -n `$(python) -c "print('$${l}'.title())"`Stemmer"; \
 	./snowball $< -py -o $${o} -p "BaseStemmer" -n `$(python) -c "print('$${l}'.title())"`Stemmer
 
+$(php_output_dir)/SnowballPHP/Stemmer/%_koi8r.php: algorithms/%/stem_KOI8_R.sbl snowball
+	@mkdir -p $(php_output_dir)/SnowballPHP/Stemmer
+	@l=`echo "$<" | sed 's!\(.*\)/stem_KOI8_R.sbl$$!\1!;s!^.*/!!'`; \
+	o="$(php_output_dir)/SnowballPHP/Stemmer/$${l}_koi8r"; \
+	echo "./snowball $< -php -o $${o} -n `$(php) -r "echo ucfirst('$${l}');"`FixedWidth"; \
+	./snowball $< -php -o $${o} -n `$(php) -r "echo ucfirst('$${l}');"`FixedWidth
+
+$(php_output_dir)/SnowballPHP/Stemmer/%_iso-8859-1.php: algorithms/%/stem_ISO_8859_1.sbl snowball
+	@mkdir -p $(php_output_dir)/SnowballPHP/Stemmer
+	@l=`echo "$<" | sed 's!\(.*\)/stem_ISO_8859_1.sbl$$!\1!;s!^.*/!!'`; \
+	o="$(php_output_dir)/SnowballPHP/Stemmer/$${l}_iso-8859-1"; \
+	echo "./snowball $< -php -o $${o} -n `$(php) -r "echo ucfirst('$${l}');"`FixedWidth"; \
+	./snowball $< -php -o $${o} -n `$(php) -r "echo ucfirst('$${l}');"`FixedWidth
+
+$(php_output_dir)/SnowballPHP/Stemmer/%_iso-8859-2.php: algorithms/%/stem_ISO_8859_2.sbl snowball
+	@mkdir -p $(php_output_dir)/SnowballPHP/Stemmer
+	@l=`echo "$<" | sed 's!\(.*\)/stem_ISO_8859_2.sbl$$!\1!;s!^.*/!!'`; \
+	o="$(php_output_dir)/SnowballPHP/Stemmer/$${l}_iso-8859-2"; \
+	echo "./snowball $< -php -o $${o} -n `$(php) -r "echo ucfirst('$${l}');"`FixedWidth"; \
+	./snowball $< -php -o $${o} -n `$(php) -r "echo ucfirst('$${l}');"`FixedWidth
+
+$(php_output_dir)/SnowballPHP/Stemmer/%.php: algorithms/%/stem_Unicode.sbl snowball
+	@mkdir -p $(php_output_dir)/SnowballPHP/Stemmer
+	@l=`echo "$<" | sed 's!\(.*\)/stem_Unicode.sbl$$!\1!;s!^.*/!!'`; \
+	o="$(php_output_dir)/SnowballPHP/Stemmer/$${l}"; \
+	echo "./snowball $< -php -u -o $${o} -n `$(php) -r "echo ucfirst('$${l}');"`"; \
+	./snowball $< -php -u -o $${o} -n `$(php) -r "echo ucfirst('$${l}');"`
+
 $(python_output_dir)/__init__.py:
 	@mkdir -p $(python_output_dir)
 	$(python) python/create_init.py $(python_output_dir)
@@ -229,7 +277,7 @@ snowball.splint: $(COMPILER_SOURCES)
 	splint $^ >$@ -weak
 
 # Make a full source distribution
-dist: dist_snowball dist_libstemmer_c dist_libstemmer_java dist_libstemmer_jsx dist_libstemmer_python
+dist: dist_snowball dist_libstemmer_c dist_libstemmer_java dist_libstemmer_jsx dist_libstemmer_python dist_libstemmer_php
 
 # Make a distribution of all the sources involved in snowball
 dist_snowball: $(COMPILER_SOURCES) $(COMPILER_HEADERS) \
@@ -336,6 +384,19 @@ dist_libstemmer_python: $(PYTHON_SOURCES)
 	cp -a $(PYTHON_PACKAGE_FILES) $${dest} && \
 	(cd $${dest} && $(python) setup.py sdist && cp dist/*.tar.gz ..) && \
 	rm -rf $${dest}
+
+dist_libstemmer_php: $(PHP_SOURCES)
+	destname=snowballstemmer; \
+	dest=dist/$${destname}; \
+	rm -rf $${dest} && \
+	rm -f $${dest}.tgz && \
+	echo "a1" && \
+	mkdir -p $${dest} && \
+	mkdir -p $${dest}/lib && \
+	mkdir -p $${dest}/$(php_sample_dir) && \
+	cp doc/libstemmer_php_README $${dest}/README.md && \
+	cp -a $(PHP_SOURCES) $${dest}/lib && \
+	cp -a $(PHP_RUNTIME_SOURCES) $${dest}/lib
 
 dist_libstemmer_jsx: $(JSX_SOURCES)
 	destname=jsxstemmer; \
