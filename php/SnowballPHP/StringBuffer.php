@@ -135,7 +135,7 @@ class StringBuffer implements CharSequence {
     }
 
     public function subSequence($start, $end) {
-        $ret = new StringBuffer();
+        $ret = new static();
         $limit = $end - $start;
         for ($i = 0; $i < $limit; $i += 1) {
             $ret->curr[$i] = $this->curr[$i + $start];
